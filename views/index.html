@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="js/web3.min.js"></script>
+    <!--1.8.2-->
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="js/qrcode.js"></script>
+
+    <!-- bootsrtap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+
+    <title>My Ethereum Wallet</title>
+
+    <script>
+      $(document).ready(() => {
+        let DEBUG = 1;
+        let web3 = new Web3(Web3.givenProvider);
+
+        //메타마스크와 연결되면 ethereum 객체가 생성된다
+        if (window.ethereum) {
+          web3 = new Web3(window.ethereum);
+        } else if (typeof window.web3 !== "undefined") {
+          web3 = new Web3(window.web3.currentProvider);
+        } else {
+          throw new Error("No web3 instance injected, using local web3.");
+        }
+        if (web3) {
+          // 5
+          web3.eth.requestAccounts();
+          web3.eth.getAccounts().then((accounts) => {
+            console.log(accounts);
+            const accountsElems = accounts.map(
+              (_account) => "<div>" + _account + "</div>"
+            );
+            $("#accountList").html(accountsElems);
+          });
+        }
+
+        let version = web3.version;
+
+        let qrcode = new QRCode(document.getElementById("qrcode"), {
+          width: 250,
+          height: 250,
+        });
+
+        function makeCode() {
+          let elText = document.getElementById("fromaddress");
+
+          if (!elText.value) {
+            alert("Input a text");
+            elText.focus();
+            return;
+          }
+          qrcode.makeCode(elText.value);
+        }
+
+        if (DEBUG) {
+          console.log("web3: ", web3);
+          console.log("starting...");
+        }
+
+        $("#send").on("click", async function () {
+          if (DEBUG) console.log("send...");
+
+          let fromaddress = $("#fromaddress").val();
+          let toaddress = $("#toaddress").val();
+          let amount = $("#sendcoin").val();
+          let myPrivateKey = $("#yourpw").val();
+
+          if (DEBUG) console.log("privateKey: ", myPrivateKey);
+          const txObject = {
+            from: fromaddress,
+            to: toaddress,
+            gas: "21000",
+            maxFeePerGas: "2500000000",
+            value: web3.utils.toWei(amount, "ether"),
+          };
+          web3.eth
+            .sendTransaction(txObject)
+            .on("transactionHash", function (hash) {
+              console.info("transactionHash", hash);
+              $("#message").html(
+                `Transaction successful with hash: ${hash}`
+              );
+            })
+            .on("receipt", function (receipt) {
+              console.info("receipt", receipt);
+            });         
+        });
+
+        $("#check").on("click", async function () {
+          if (DEBUG) console.log("check...");
+          let fromaddress = $("#fromaddress").val();
+          let getbalance = await web3.eth.getBalance(fromaddress);
+          let balance = web3.utils.fromWei(getbalance, "ether");
+          if (DEBUG) console.log("balance : ", balance + " ETH");
+          $("#message").text(" balance: " + balance + " ETH");
+        });
+
+        $("#newAccount").on("click", async function () {
+          let account = web3.eth.accounts.create();
+
+          if (DEBUG) console.log("privateKey : ", account.privateKey);
+          if (DEBUG) console.log("account : ", account.address);
+
+          makeCode();
+
+          $("#fromaddress").val(account.address);
+          $("#message").html(
+            "<div>account address: " +
+              account.address +
+              "</div>" +
+              "<div>private key: " +
+              account.privateKey +
+              "</div>"
+          );
+          alert("Account 생성이 완료 되었습니다..!!!" + account.address);
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <header class="container" role="main">
+      <h2>이더리움 전자지갑</h2>
+      <div class="p-2">
+        <button id="newAccount">New Account</button>
+        <button id="check">잔액확인</button>
+        <button id="send">송금하기</button>
+      </div>
+    </header>
+    <section class="container">
+      <div class="py-3">
+        <div class="h5">나의 계좌목록</div>
+        <div class="row" id="accountList"></div>
+      </div>
+      <div class="row py-3">
+        <div class="col-3"><span class="h5">송신처(from address)</span></div>
+        <div class="col">
+          <input id="fromaddress" class="w-100" value="" />
+        </div>
+      </div>
+      <div class="row py-3">
+        <span class="h5">수신처(to address)</span>
+        <span><input id="toaddress" class="w-100" value="" /></span>
+      </div>
+      <div class="row py-3">
+        <span class="h5">보낼 코인(ether)</span>
+        <span><input id="sendcoin" placeholder="" value="1" /></span>
+      </div>
+      <div class="row py-3">
+        <span class="h5">비밀번호(account private key)</span>
+        <span>
+          <input class="w-100" type="password" id="yourpw" value="" />
+        </span>
+      </div>
+    </section>
+    <div class="container">
+      <div><h4>Response Message</h4></div>
+      <div id="message"></div>
+    </div>
+    <div class="container">
+      <div id="qrcode" class="mt-5" style="width: 250px; height: 250px"></div>
+    </div>
+  </body>
+</html>
