@@ -18,16 +18,21 @@ $(document).ready(function () {
       myAccount = accounts[0];
     });
   }
-  const productRegistryContractAddress =
-    "0x1552900c0Dfa1A446e7C0337bb2B85bA85BED458";
+  // const productRegistryContractAddress =
+  //   "0x1552900c0Dfa1A446e7C0337bb2B85bA85BED458";
+  const productRegistryContractAddress = "0xdEf9a957093Fa71569C3a7E847B3CE74AD49ce79";
   const contract = new web3.eth.Contract(
     productRegistryContractABI,
     productRegistryContractAddress
   );
 
   $("#register-tab").click(function () {
-    showTable();
+    // showTable();
   });
+
+  $("#verify-tab").click(function () {
+    showTable();
+  });  
 
   $("#btnRegisterProduct").click(registerProduct);
 
