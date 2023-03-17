@@ -23,10 +23,10 @@ app.get('/hellopage', function(req, res){
     res.sendFile(filePath);
 })
 
-// app.get('/agriculture', function(req, res){
-//   const filePath = path.join(__dirname, 'views', 'agriculture.html')
-//   res.sendFile(filePath);
-// })
+app.get('/agriculture', function(req, res){
+  const filePath = path.join(__dirname, 'views', 'agriculture.html')
+  res.sendFile(filePath);
+})
 
 // app.get('/newpage', function(req, res){
 //     const filePath = path.join(__dirname, 'views', 'hellopage.html')
