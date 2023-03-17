@@ -32,10 +32,12 @@
           throw new Error("No web3 instance injected, using local web3.");
         }
         if (web3) {
+          let myAccount;
           // 5
           web3.eth.requestAccounts();
           web3.eth.getAccounts().then((accounts) => {
             console.log(accounts);
+            myAccount = accounts[0]
             const accountsElems = accounts.map(
               (_account) => "<div>" + _account + "</div>"
             );

@@ -13,11 +13,26 @@ app.get('/', function(req, res){
     res.sendFile(filePath);
 });
 
-app.get('/restaurants', function(req, res){
-    const filePath = path.join(__dirname, 'views', 'restaurants.html')
+app.get('/hello-contract', function(req, res){
+  const filePath = path.join(__dirname, 'views', 'hello-contract.html')
+  res.sendFile(filePath);
+})
+
+app.get('/hellopage', function(req, res){
+    const filePath = path.join(__dirname, 'views', 'hellopage.html')
     res.sendFile(filePath);
 })
 
+// app.get('/agriculture', function(req, res){
+//   const filePath = path.join(__dirname, 'views', 'agriculture.html')
+//   res.sendFile(filePath);
+// })
+
+// app.get('/newpage', function(req, res){
+//     const filePath = path.join(__dirname, 'views', 'hellopage.html')
+//     res.sendFile(filePath);
+// })
+
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`My First Dapp listening on port ${port}`)
 })

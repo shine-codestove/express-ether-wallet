@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello Smart Contract</title>
+    <!-- bootsrtap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <!--1.8.2-->
+    <script type="text/javascript" src="js/web3.min.js"></script>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+
+    <script>
+      $(document).ready(() => {
+        let web3 = new Web3(Web3.givenProvider);
+        let myAccount;
+
+        //메타마스크와 연결되면 ethereum 객체가 생성된다
+        if (window.ethereum) {
+          web3 = new Web3(window.ethereum);
+        } else if (typeof window.web3 !== "undefined") {
+          web3 = new Web3(window.web3.currentProvider);
+        } else {
+          throw new Error("No web3 instance injected, using local web3.");
+        }
+        if (web3) {
+          web3.eth.getAccounts().then((accounts) => {
+            console.log(accounts);
+            myAccount = accounts[0];
+          });
+
+          //스마트컨트랙트를 web3를 통해서 연결하는 코드.
+          const contract = new web3.eth.Contract(ABI, contractAddress);
+
+          $("#btnSay").click(() => {
+            contract.methods
+              .say()
+              .call()
+              .then((result) => {
+                $("#resultMessage").text(result);
+                console.log(result);
+              });
+          });
+
+          $("#btnSet").click(() => {
+            const greetingText = $("#greetingText").val();
+            contract.methods
+              .setGreeting(greetingText)
+              .send({ from: myAccount })
+              .then((result) => {
+                console.log(result);
+                $("#resultMessage").html(JSON.stringify(result));
+              });
+          });
+        }
+      });
+      const contractAddress = "0x810f9E38611D353Cd88d771dCB123B20e9C8062D";
+      const ABI = [
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_greeting",
+              type: "string",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "greeting",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "say",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_greeting",
+              type: "string",
+            },
+          ],
+          name: "setGreeting",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ];
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Smart Contract Study</h1>
+      </header>
+      <section>
+        <div><button class="btn btn-primary" id="btnSay">Say</button></div>
+        <div>
+          <input type="text" id="greetingText" />
+          <button class="btn btn-info" id="btnSet">Set Greeting</button>
+        </div>
+      </section>
+      <section>
+        <h5>Result Message</h5>
+        <div id="resultMessage" class="border border-primary">no result</div>
+      </section>
+    </div>
+  </body>
+</html>
